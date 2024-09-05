@@ -39,7 +39,9 @@ struct Revolver {
 
 trait Swipable {
     fn left(&self) -> usize;
+    fn first(&self) -> usize;
     fn right(&self) -> usize;
+    fn last(&self) -> usize;
 }
 
 impl Swipable for Revolver {
@@ -50,18 +52,28 @@ impl Swipable for Revolver {
         }
     }
 
+    fn first(&self) -> usize {
+        return 0
+    }
+
     fn right(&self) -> usize {
         match self.current {
             x if x == (self.numpics - 1) => 0,
             _ => self.current + 1,
         }
     }
+
+    fn last(&self) -> usize {
+        return self.numpics - 1;
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
 enum RevolverMessage {
     ChangeLeft,
+    ChangeToStart,
     ChangeRight,
+    ChangeToEnd,
     WindowClose,
 }
 
@@ -90,13 +102,25 @@ impl Application for Revolver {
     }
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
-        keyboard::on_key_press(|k, _modifiers| match k {
-            keyboard::Key::Named(Named::ArrowLeft)  => return Some( RevolverMessage::ChangeLeft ),
-            keyboard::Key::Character(c) if c == "h" => return Some( RevolverMessage::ChangeLeft ),
-            keyboard::Key::Named(Named::ArrowRight) => return Some( RevolverMessage::ChangeRight ),
-            keyboard::Key::Character(c) if c == "l" => return Some( RevolverMessage::ChangeRight ),
-            keyboard::Key::Named(Named::Escape)     => return Some( RevolverMessage::WindowClose ),
-            keyboard::Key::Character(c) if c == "q" => return Some( RevolverMessage::WindowClose ),
+        keyboard::on_key_press(|k, modifiers| match k {
+            keyboard::Key::Named(Named::ArrowLeft)  => return Some(
+                if modifiers.shift() { RevolverMessage::ChangeToStart }
+                else                 { RevolverMessage::ChangeLeft    }
+            ),
+            keyboard::Key::Character(c) if c == "h" => return Some(
+                if modifiers.shift() { RevolverMessage::ChangeToStart }
+                else                 { RevolverMessage::ChangeLeft    }
+            ),
+            keyboard::Key::Named(Named::ArrowRight) => return Some(
+                if modifiers.shift() { RevolverMessage::ChangeToEnd }
+                else                 { RevolverMessage::ChangeRight }
+            ),
+            keyboard::Key::Character(c) if c == "l" => return Some(
+                if modifiers.shift() { RevolverMessage::ChangeToEnd }
+                else                 { RevolverMessage::ChangeRight }
+            ),
+            keyboard::Key::Named(Named::Escape)     => return Some(RevolverMessage::WindowClose),
+            keyboard::Key::Character(c) if c == "q" => return Some(RevolverMessage::WindowClose),
             _ => return None,
         })
     }
@@ -132,6 +156,14 @@ impl Application for Revolver {
             }
             RevolverMessage::ChangeRight => {
                 self.current = self.right();
+                Command::none()
+            }
+            RevolverMessage::ChangeToStart => {
+                self.current = self.first();
+                Command::none()
+            }
+            RevolverMessage::ChangeToEnd => {
+                self.current = self.last();
                 Command::none()
             }
             RevolverMessage::WindowClose => {
