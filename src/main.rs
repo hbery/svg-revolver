@@ -185,6 +185,10 @@ impl Application for Revolver {
             }
         }
     }
+
+    fn theme(&self) -> Self::Theme {
+        return Theme::CatppuccinMacchiato;
+    }
 }
 
 fn main() -> iced::Result {
