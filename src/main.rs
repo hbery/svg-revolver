@@ -188,5 +188,15 @@ impl Application for Revolver {
 }
 
 fn main() -> iced::Result {
-    return Revolver::run(Settings::default());
+    use iced::window;
+
+    return Revolver::run(Settings {
+            id: Some("SVG_REVOLVER".to_string()),
+            window: window::Settings {
+                decorations: false,
+                ..window::Settings::default()
+            },
+            ..Settings::default()
+        }
+    );
 }
