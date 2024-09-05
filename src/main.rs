@@ -127,21 +127,35 @@ impl Application for Revolver {
 
     fn view(&self) -> iced::Element<'_, Self::Message, Self::Theme, Renderer> {
         column![
-            Svg::from_path(&self.svgs[self.current]).height(Length::FillPortion(10)),
+            Svg::from_path(&self.svgs[self.current]).height(Length::FillPortion(17)),
             row![
                 button(text("Left")
                         .vertical_alignment(Vertical::Center)
                         .horizontal_alignment(Horizontal::Center))
-                    .height(Length::FillPortion(1))
+                    .height(Length::FillPortion(2))
                     .width(Length::FillPortion(1))
                     .on_press(RevolverMessage::ChangeLeft),
                 button(text("Right")
                         .vertical_alignment(Vertical::Center)
                         .horizontal_alignment(Horizontal::Center))
-                    .height(Length::FillPortion(1))
+                    .height(Length::FillPortion(2))
                     .width(Length::FillPortion(1))
                     .on_press(RevolverMessage::ChangeRight),
             ],
+            text(format!(
+            "{l_mod} + {l_arr}/{l_let} - Start | {l_arr}/{l_let} - Left | {r_arr}/{r_let} - Right | {r_mod} + {r_arr}/{r_let} - End | {q_esc}/{q_let} - Quit",
+                l_mod = "<SHIFT>",
+                r_mod = "<SHIFT>",
+                l_arr = "=>",
+                l_let = "<H>",
+                r_arr = "<=",
+                r_let = "<L>",
+                q_esc = "<ESC>",
+                q_let = "<Q>"
+            ))
+                .height(Length::FillPortion(1))
+                .vertical_alignment(Vertical::Center)
+                .horizontal_alignment(Horizontal::Center)
         ]
         .padding(5)
         .align_items(Alignment::Center)
