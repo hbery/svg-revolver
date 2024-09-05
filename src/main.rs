@@ -5,6 +5,10 @@ use iced::{
         Horizontal,
         Vertical
     },
+    keyboard::{
+        self,
+        key::Named
+    },
     widget::{
         button,
         column,
@@ -58,6 +62,7 @@ impl Swipable for Revolver {
 enum RevolverMessage {
     ChangeLeft,
     ChangeRight,
+    WindowClose,
 }
 
 impl Application for Revolver {
@@ -84,6 +89,18 @@ impl Application for Revolver {
         return TITLE.to_string();
     }
 
+    fn subscription(&self) -> iced::Subscription<Self::Message> {
+        keyboard::on_key_press(|k, _modifiers| match k {
+            keyboard::Key::Named(Named::ArrowLeft)  => return Some( RevolverMessage::ChangeLeft ),
+            keyboard::Key::Character(c) if c == "h" => return Some( RevolverMessage::ChangeLeft ),
+            keyboard::Key::Named(Named::ArrowRight) => return Some( RevolverMessage::ChangeRight ),
+            keyboard::Key::Character(c) if c == "l" => return Some( RevolverMessage::ChangeRight ),
+            keyboard::Key::Named(Named::Escape)     => return Some( RevolverMessage::WindowClose ),
+            keyboard::Key::Character(c) if c == "q" => return Some( RevolverMessage::WindowClose ),
+            _ => return None,
+        })
+    }
+
     fn view(&self) -> iced::Element<'_, Self::Message, Self::Theme, Renderer> {
         column![
             Svg::from_path(&self.svgs[self.current]).height(Length::FillPortion(10)),
@@ -99,7 +116,7 @@ impl Application for Revolver {
                         .horizontal_alignment(Horizontal::Center))
                     .height(Length::FillPortion(1))
                     .width(Length::FillPortion(1))
-                    .on_press(RevolverMessage::ChangeRight)
+                    .on_press(RevolverMessage::ChangeRight),
             ],
         ]
         .padding(5)
@@ -116,6 +133,9 @@ impl Application for Revolver {
             RevolverMessage::ChangeRight => {
                 self.current = self.right();
                 Command::none()
+            }
+            RevolverMessage::WindowClose => {
+                std::process::exit(0)
             }
         }
     }
